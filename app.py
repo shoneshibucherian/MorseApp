@@ -7,8 +7,6 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 import csv
 import json
-import pandas as pd
-import sys, getopt, pprint
 from pymongo import MongoClient
 import uuid
 
