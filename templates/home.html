@@ -13,10 +13,11 @@
         </li>
         {% endfor %}
     </span></p>
-    <textarea id="messageBox" rows="10" cols="150" placeholder="Please enter the morse code"></textarea>
+    <textarea id="messageBox" rows="10" cols="150" placeholder="Please enter the morse code" autofocus></textarea>
     <script>
         
     
+    const socket = io.connect('http://' + document.domain + ':' + location.port);
 
         let message = '';
         let isListening = false;
@@ -62,7 +63,7 @@
             .then(data => {
                 console.log('User connected:', data.message);
                 fetchAllMessages();  // Fetch all messages on connect
-                setInterval(pollForNewMessages, 5000);  // Continue polling for new messages
+                // setInterval(pollForNewMessages, 5000);  // Continue polling for new messages
             })
             .catch(error => {
                 console.error('Error on connect:', error);
@@ -83,7 +84,7 @@ function fetchAllMessages() {
                 newListItem.style.backgroundColor = message.color;
                 newListItem.style.padding = '10px';
                 newListItem.style.margin = '5px';
-                newListItem.innerHTML = ` ${message.message}`;
+                newListItem.innerHTML = `<strong>${message.color}</strong> ${message.message}`;
                 messageList.appendChild(newListItem);
             });
         })
@@ -92,7 +93,16 @@ function fetchAllMessages() {
         });
 }
 
-// Function to poll for new messages
+socket.on('/new_message', function(msg) {
+     const newListItem = document.createElement('li');
+                    newListItem.style.backgroundColor = msg.color;
+                    newListItem.style.padding = '10px';
+                    newListItem.style.margin = '5px';
+                    newListItem.innerHTML = `<strong>${msg.color}:</strong> ${msg.message}`;
+                    messageList.appendChild(newListItem);
+            });
+
+// this function is retired becuase, ot used to clog the terminal and is replaced by the above function
 function pollForNewMessages() {
     fetch('/new_messages', { credentials: 'same-origin' })  // Ensure cookies are sent
         .then(response => response.json())
@@ -107,6 +117,7 @@ function pollForNewMessages() {
                     newListItem.style.margin = '5px';
                     newListItem.innerHTML = `<strong>${message.color}:</strong> ${message.message}`;
                     messageList.appendChild(newListItem);
+
                 });
             }
         })
